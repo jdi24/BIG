@@ -1,0 +1,7 @@
+if [ aglSubDirOnce TOP src ] = 1 { return ; }
+
+aglDefLib esGLUT : 1,0,0 ;
+
+SRC = [ aglPkgSrc ] ;
+
+BUILD_SRC = [ aglBuildPackage $(SRC) : lint : $(CHK_SOURCES) ] ;

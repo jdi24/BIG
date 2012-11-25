@@ -1,0 +1,5 @@
+syntax: glob
+.externalToolBuilders/*
+.DS_Store
+/libs/
+/redist/bin/
