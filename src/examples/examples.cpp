@@ -27,6 +27,8 @@
 #endif
 #endif
 
+#include "include/cef_app.h"
+
 #define NUM_SPHERES 50
 GLFrame spheres[NUM_SPHERES];
 
@@ -209,7 +211,16 @@ int main(int argc, char* argv[])
         }
 #endif 
 
+	CefMainArgs args;
+	CefSettings settings;
+	settings.multi_threaded_message_loop = true;
+	CefString(&settings.browser_subprocess_path) = "cefclient.exe";
+	CefString(&settings.locale) = "zh-CN";
+	CefInitialize(args, settings, NULL);
+
     SetupRC();
     glutMainLoop();    
+
+	CefShutdown();
     return 0;
     }

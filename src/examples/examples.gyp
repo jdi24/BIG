@@ -55,11 +55,19 @@
         {
           'target_name': 'examples',
           'type': 'executable',
+          'include_dirs': [
+            '<(DEPTH)/third_party/cef3',
+          ],
           'dependencies': [
             '<(DEPTH)/third_party/esGLUT/esGLUT.gyp:esGLUT',
             '<(DEPTH)/third_party/cef3/cefclient.gyp:libcef_dll_wrapper',
             'gltools',
           ],
+          'link_settings': {
+            'libraries': [
+              '<(DEPTH)/third_party/cef3/binary/libcef.lib',
+            ],
+          },
           'sources': [
             'examples.cpp',
           ],
@@ -73,6 +81,13 @@
                 '<(DEPTH)/third_party/cef3/binary/libcef.dll',
                 #'<(DEPTH)/third_party/cef3/binary/libEGL.dll',
                 #'<(DEPTH)/third_party/cef3/binary/libGLESv2.dll',
+              ],
+            },
+            {
+              'destination': '<(PRODUCT_DIR)/locales',
+              'files': [
+                '<(DEPTH)/third_party/cef3/binary/locales/en-US.pak',
+                '<(DEPTH)/third_party/cef3/binary/locales/zh-CN.pak',
               ],
             },
           ],
