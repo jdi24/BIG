@@ -57,11 +57,26 @@
           'type': 'executable',
           'dependencies': [
             '<(DEPTH)/third_party/esGLUT/esGLUT.gyp:esGLUT',
+            '<(DEPTH)/third_party/cef3/cefclient.gyp:libcef_dll_wrapper',
             'gltools',
           ],
           'sources': [
             'examples.cpp',
           ],
+          'copies': [
+            {
+              'destination': '<(PRODUCT_DIR)',
+              'files': [
+                '<(DEPTH)/third_party/cef3/binary/cefclient.exe',
+                '<(DEPTH)/third_party/cef3/binary/ffmpegsumo.dll',
+                '<(DEPTH)/third_party/cef3/binary/icudt.dll',
+                '<(DEPTH)/third_party/cef3/binary/libcef.dll',
+                #'<(DEPTH)/third_party/cef3/binary/libEGL.dll',
+                #'<(DEPTH)/third_party/cef3/binary/libGLESv2.dll',
+              ],
+            },
+          ],
+
         },
       ],
     }],

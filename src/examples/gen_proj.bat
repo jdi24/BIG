@@ -1,1 +1,1 @@
-python.exe ..\tools\gyp\gyp examples.gyp -I ..\third_party\angle\build\common.gypi
+python.exe ..\tools\gyp\gyp examples.gyp -I common.gypi
