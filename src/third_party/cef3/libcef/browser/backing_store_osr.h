@@ -5,6 +5,10 @@
 #ifndef CEF_LIBCEF_BROWSER_BACKING_STORE_OSR_H_
 #define CEF_LIBCEF_BROWSER_BACKING_STORE_OSR_H_
 
+// The BACKING_STORE_OSR_ALPHA impl portions extracted from 
+// /content/browser/renderer_host/backing_store_aura.cc
+#define BACKING_STORE_OSR_ALPHA
+
 #include <vector>
 
 #include "content/browser/renderer_host/backing_store.h"
@@ -42,7 +46,12 @@ class BackingStoreOSR : public content::BackingStore {
       const gfx::Size& size);
   virtual ~BackingStoreOSR() {}
 
+#ifdef BACKING_STORE_OSR_ALPHA
+  SkBitmap bitmap_;
+  scoped_ptr<SkCanvas> canvas_;
+#else
   skia::PlatformBitmap bitmap_;
+#endif
 
   DISALLOW_COPY_AND_ASSIGN(BackingStoreOSR);
 };

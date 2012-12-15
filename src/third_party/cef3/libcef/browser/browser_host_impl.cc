@@ -37,6 +37,7 @@
 #include "content/public/browser/resource_request_info.h"
 #include "content/public/common/file_chooser_params.h"
 #include "ui/base/dialogs/selected_file_info.h"
+#include "third_party/skia/include/core/SkCanvas.h"
 
 #if defined(OS_WIN)
 #include "libcef/browser/render_widget_host_view_osr.h"
@@ -1519,6 +1520,19 @@ void CefBrowserHostImpl::RequestMediaAccessPermission(
 void CefBrowserHostImpl::RenderViewCreated(
     content::RenderViewHost* render_view_host) {
   SetRenderViewHost(render_view_host);
+  // When transparent_painting, set a transparent bitmap to 
+  // RenderWidgetHostImpl to have a transparent background.
+  if (window_info_.transparent_painting) {
+    content::RenderWidgetHostImpl* widget =
+      content::RenderWidgetHostImpl::From(render_view_host);
+    if (widget) {
+      SkBitmap bitmap;
+      bitmap.setConfig(SkBitmap::kARGB_8888_Config, 1, 1);
+      bitmap.allocPixels();
+      SkCanvas(bitmap).drawARGB(0, 0, 0, 0, SkXfermode::kSrc_Mode);
+      widget->SetBackground(bitmap);
+    }  
+  }
 }
 
 void CefBrowserHostImpl::RenderViewDeleted(

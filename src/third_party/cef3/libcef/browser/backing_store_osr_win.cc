@@ -7,12 +7,14 @@
 #include "content/public/browser/render_process_host.h"
 #include "ui/gfx/gdi_util.h"
 #include "ui/gfx/rect.h"
+#include "ui/gfx/rect_conversions.h"
 #include "ui/surface/transport_dib.h"
 
 // Portions extracted from content/browser/renderer_host/backing_store_win.cc.
 
 namespace {
 
+#ifndef BACKING_STORE_OSR_ALPHA
 void CallStretchDIBits(HDC hdc, int dest_x, int dest_y, int dest_w, int dest_h,
                       int src_x, int src_y, int src_w, int src_h, void* pixels,
                       const BITMAPINFO* bitmap_info) {
@@ -35,6 +37,7 @@ void CallStretchDIBits(HDC hdc, int dest_x, int dest_y, int dest_w, int dest_h,
   }
   DCHECK(rv != GDI_ERROR);
 }
+#endif
 
 }  // namespace
 
@@ -46,6 +49,48 @@ void BackingStoreOSR::PaintToBackingStore(
     float scale_factor,
     const base::Closure& completion_callback,
     bool* scheduled_completion_callback) {
+#ifdef BACKING_STORE_OSR_ALPHA
+  *scheduled_completion_callback = false;
+  if (bitmap_rect.IsEmpty())
+    return;
+
+  gfx::Rect pixel_bitmap_rect = gfx::ToEnclosedRect(
+    gfx::ScaleRect(bitmap_rect, scale_factor));
+
+  const int width = pixel_bitmap_rect.width();
+  const int height = pixel_bitmap_rect.height();
+
+  if (width <= 0 || height <= 0)
+    return;
+
+  TransportDIB* dib = process->GetTransportDIB(bitmap);
+  if (!dib)
+    return;
+
+  SkPaint copy_paint;
+  copy_paint.setXfermodeMode(SkXfermode::kSrc_Mode);
+
+  SkBitmap sk_bitmap;
+  sk_bitmap.setConfig(SkBitmap::kARGB_8888_Config, width, height);
+  sk_bitmap.setPixels(dib->memory());
+  for (size_t i = 0; i < copy_rects.size(); i++) {
+    const gfx::Rect pixel_copy_rect = gfx::ToEnclosingRect(
+      gfx::ScaleRect(copy_rects[i], scale_factor));
+    int x = pixel_copy_rect.x() - pixel_bitmap_rect.x();
+    int y = pixel_copy_rect.y() - pixel_bitmap_rect.y();
+    SkIRect srcrect = SkIRect::MakeXYWH(x, y,
+      pixel_copy_rect.width(),
+      pixel_copy_rect.height());
+
+    const gfx::Rect pixel_copy_dst_rect = copy_rects[i];
+    SkRect dstrect = SkRect::MakeXYWH(
+      SkIntToScalar(pixel_copy_dst_rect.x()),
+      SkIntToScalar(pixel_copy_dst_rect.y()),
+      SkIntToScalar(pixel_copy_dst_rect.width()),
+      SkIntToScalar(pixel_copy_dst_rect.height()));
+    canvas_.get()->drawBitmapRect(sk_bitmap, &srcrect, dstrect, &copy_paint);
+  }
+#else
   *scheduled_completion_callback = false;
   TransportDIB* dib = process->GetTransportDIB(bitmap);
   if (!dib)
@@ -72,15 +117,25 @@ void BackingStoreOSR::PaintToBackingStore(
                       dib->memory(),
                       reinterpret_cast<BITMAPINFO*>(&hdr));
   }
+#endif
 }
 
 bool BackingStoreOSR::CopyFromBackingStore(const gfx::Rect& rect,
                                            skia::PlatformBitmap* output) {
   if (!output->Allocate(rect.width(), rect.height(), true))
     return false;
-
+  
+#ifdef BACKING_STORE_OSR_ALPHA
+  SkIRect skrect = SkIRect::MakeXYWH(rect.x(), rect.y(), rect.width(), rect.height());
+  SkBitmap b;
+  if (!canvas_->readPixels(skrect, &b))
+    return false;
+  SkCanvas(output->GetBitmap()).writePixels(b, rect.x(), rect.y());
+  return true;
+#else
   HDC src_dc = bitmap_.GetSurface();
   HDC dst_dc = output->GetSurface();
   return BitBlt(dst_dc, 0, 0, rect.width(), rect.height(),
                 src_dc, rect.x(), rect.y(), SRCCOPY) ? true : false;
+#endif
 }
