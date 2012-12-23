@@ -56,42 +56,28 @@
           'target_name': 'examples',
           'type': 'executable',
           'include_dirs': [
-            '<(DEPTH)/third_party/cef3',
+            '<(DEPTH)/big',
           ],
           'dependencies': [
+            '<(DEPTH)/big/big.gyp:big',
             '<(DEPTH)/third_party/esGLUT/esGLUT.gyp:esGLUT',
-            '<(DEPTH)/third_party/cef3/cefclient.gyp:libcef_dll_wrapper',
             'gltools',
           ],
-          'link_settings': {
-            'libraries': [
-              '<(DEPTH)/third_party/cef3/binary/libcef.lib',
-            ],
-          },
           'sources': [
             'examples.cpp',
+            '<(DEPTH)/big/renderer/big_renderer_gles20.h',
+            '<(DEPTH)/big/renderer/big_renderer_gles20.cpp',
           ],
           'copies': [
             {
-              'destination': '<(PRODUCT_DIR)',
-              'files': [
-                '<(DEPTH)/third_party/cef3/binary/cefclient.exe',
-                '<(DEPTH)/third_party/cef3/binary/ffmpegsumo.dll',
-                '<(DEPTH)/third_party/cef3/binary/icudt.dll',
-                '<(DEPTH)/third_party/cef3/binary/libcef.dll',
-                #'<(DEPTH)/third_party/cef3/binary/libEGL.dll',
-                #'<(DEPTH)/third_party/cef3/binary/libGLESv2.dll',
-              ],
-            },
-            {
-              'destination': '<(PRODUCT_DIR)/locales',
-              'files': [
-                '<(DEPTH)/third_party/cef3/binary/locales/en-US.pak',
-                '<(DEPTH)/third_party/cef3/binary/locales/zh-CN.pak',
-              ],
+              'destination': '<(PRODUCT_DIR)/pages/wheel_menu',
+               'files': [
+                 'pages/wheel_menu/wheel_menu.html',
+                 'pages/wheel_menu/card18.jpg',
+                 'pages/wheel_menu/jquery-latest.js',
+               ],
             },
           ],
-
         },
       ],
     }],

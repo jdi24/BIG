@@ -27,7 +27,8 @@
 #endif
 #endif
 
-#include "include/cef_app.h"
+#include "browser/big_browser.h"
+#include "renderer/big_renderer_gles20.h"
 
 #define NUM_SPHERES 50
 GLFrame spheres[NUM_SPHERES];
@@ -43,6 +44,9 @@ GLTriangleBatch		torusBatch;
 GLBatch				floorBatch;
 GLTriangleBatch     sphereBatch;
 GLFrame             cameraFrame;
+
+BigBrowser			*browser = NULL;
+BigRendererGLES20	*renderer = NULL;
         
 //////////////////////////////////////////////////////////////////
 // This function does any needed initialization on the rendering
@@ -159,6 +163,10 @@ void RenderScene(void)
                                 transformPipeline.GetProjectionMatrix(), vLightEyePos, vSphereColor);
     sphereBatch.Draw();
 
+	if(browser) {
+		browser->Paint();
+	}
+
 	// Restore the previous modleview matrix (the identity matrix)
 	modelViewMatrix.PopMatrix();
     modelViewMatrix.PopMatrix();    
@@ -211,16 +219,28 @@ int main(int argc, char* argv[])
         }
 #endif 
 
-	CefMainArgs args;
-	CefSettings settings;
-	settings.multi_threaded_message_loop = true;
-	CefString(&settings.browser_subprocess_path) = "cefclient.exe";
-	CefString(&settings.locale) = "zh-CN";
-	CefInitialize(args, settings, NULL);
+	std::string url;
+	if(argc >= 2) {
+		url = argv[1];
+	} else {
+		char *pLastSlash = strrchr(argv[0], '\\');   
+		url.assign(argv[0], pLastSlash);
+		url += "\\pages\\wheel_menu\\wheel_menu.html";
+	}
+
+	BigInit();
+
+	browser = new BigBrowser(800, 600, url.c_str());
+	renderer = new BigRendererGLES20();
+	browser->SetRenderer(renderer);
 
     SetupRC();
     glutMainLoop();    
 
-	CefShutdown();
+	delete browser;
+	browser = NULL;
+
+	// Must shut down BIG before exit.
+	BigShutdown();
     return 0;
     }
