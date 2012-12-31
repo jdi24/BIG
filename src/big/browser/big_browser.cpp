@@ -36,8 +36,9 @@ BigBrowser::BigBrowser(int width, int height, const CefString& url) {
 
 	CefBrowserSettings browserSettings;
 
-	clientHandler = new ClientHandler();
-	CefBrowserHost::CreateBrowser(windowInfo, clientHandler.get()
+	client_handler_ = new ClientHandler();
+	client_handler_->SetSize(width, height);
+	CefBrowserHost::CreateBrowser(windowInfo, client_handler_.get()
 		, url
 		, browserSettings);
 }
@@ -47,54 +48,20 @@ BigBrowser::~BigBrowser() {
 }
 
 void BigBrowser::Paint() {
-	if(clientHandler.get()) {
-		clientHandler->PaintGLES();
+	if(client_handler_.get()) {
+		client_handler_->PaintGLES();
 	}
 }
 
 void BigBrowser::SetRenderer(BigRenderer* renderer) {
-	if(clientHandler.get()) {
-		clientHandler->SetRenderer(renderer);
+	if(client_handler_.get()) {
+		client_handler_->SetRenderer(renderer);
 	}
 }
 
-bool ClientHandler::GetViewRect(CefRefPtr<CefBrowser> browser, CefRect& rect) {
-	rect.x = rect.y = 0;
-	rect.width = 800;
-	rect.height = 600;
-	return true;
-}
-
-void ClientHandler::OnPaint(CefRefPtr<CefBrowser> browser, PaintElementType type
-							, const RectList& dirtyRects, const void* buffer
-							, int width, int height) {
-	AutoLock lock_scope(this);
-
-	if(renderer_) {
-		renderer_->OnPaint(dirtyRects, buffer, width, height);
-	}
-}
-
-void ClientHandler::PaintGLES() {
-	AutoLock lock_scope(this);
-
-	if(renderer_) {
-		renderer_->Paint();
-	}
-}
-
-void ClientHandler::SetRenderer(BigRenderer* renderer) {
-	renderer_ = renderer;
-}
-
-ClientHandler::ClientHandler()
-: renderer_(NULL)
-{
-}
-
-ClientHandler::~ClientHandler() {
-	if(renderer_) {
-		delete renderer_;
-		renderer_ = NULL;
+void BigBrowser::SendMouseMoveEvent(int x, int y, bool mouseLeave) {
+	if(client_handler_.get() && client_handler_->GetBrowser().get()) {
+		CefRefPtr<CefBrowserHost> host = client_handler_->GetBrowser()->GetHost();
+		host->SendMouseMoveEvent(x, y, mouseLeave);
 	}
 }

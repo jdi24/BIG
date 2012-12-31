@@ -1,43 +1,13 @@
 #ifndef BIG_BROWSER_H_
 #define BIG_BROWSER_H_
 
-#include "include/cef_client.h"
+#include "big_handler.h"
 
 void BigInit();
 
 void BigShutdown();
 
-class BigRenderer {
-public:
-	virtual ~BigRenderer() {};
-	virtual void OnPaint(const CefRenderHandler::RectList& dirtyRects, const void* buffer, int width, int height) = 0;
-	virtual void Paint() = 0;
-};
-
-class ClientHandler : public CefClient
-	, CefRenderHandler
-{
-public:
-	virtual CefRefPtr<CefRenderHandler> GetRenderHandler() OVERRIDE { return this; }
-
-	// CefRenderHandler methods
-	virtual bool GetViewRect(CefRefPtr<CefBrowser> browser, CefRect& rect) OVERRIDE;
-	virtual void OnPaint(CefRefPtr<CefBrowser> browser, PaintElementType type
-		, const RectList& dirtyRects, const void* buffer, int width, int height) OVERRIDE;
-
-	void PaintGLES();
-	void SetRenderer(BigRenderer* renderer);
-
-	ClientHandler();
-	~ClientHandler();
-
-protected:
-	IMPLEMENT_REFCOUNTING(ClientHandler);
-	IMPLEMENT_LOCKING(ClientHandler);
-
-private:
-	BigRenderer* renderer_;
-};
+class BigRenderer;
 
 class BigBrowser {
 public:
@@ -46,8 +16,14 @@ public:
 
 	void Paint();
 	void SetRenderer(BigRenderer* renderer);
+
+	// Message related
+
+	// Send a mouse move event to the browser. The |x| and |y| coordinates are
+	// relative to the upper-left corner of the view.
+	void SendMouseMoveEvent(int x, int y, bool mouseLeave);
 private:
-	CefRefPtr<ClientHandler> clientHandler;
+	CefRefPtr<ClientHandler> client_handler_;
 };
 
 #endif

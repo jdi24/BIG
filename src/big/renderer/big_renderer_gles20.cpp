@@ -337,8 +337,8 @@ void BigRendererGLES20::Paint() {
 		CefRenderHandler::RectList::const_iterator i = dirty_rects_.begin();
 		for(; i != dirty_rects_.end(); ++i) {
 			const CefRect& rect = *i;
-			glTexSubImage2D(GL_TEXTURE_2D, 0, rect.x, rect.y
-				, rect.width, rect.height, GL_RGBA, GL_UNSIGNED_BYTE, buffer_);
+			glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0
+				, width_, height_, GL_RGBA, GL_UNSIGNED_BYTE, buffer_);
 		}
 	}
 

@@ -23,6 +23,8 @@
           'sources': [
             'browser/big_browser.h',
             'browser/big_browser.cpp',
+            'browser/big_handler.h',
+            'browser/big_handler.cpp',
           ],
           'copies': [
             {
@@ -48,6 +50,13 @@
             'include_dirs': [
               '<(DEPTH)/third_party/cef3',
             ],
+            'msvs_settings': {
+              'VCLinkerTool': {
+                'DelayLoadDlls': [
+                  'libcef.dll',
+                ],
+              }
+            }
           },
         },
       ],

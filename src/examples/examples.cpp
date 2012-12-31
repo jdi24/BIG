@@ -197,6 +197,21 @@ void SpecialKeys(int key, int x, int y)
 		cameraFrame.RotateWorld(-angular, 0.0f, 1.0f, 0.0f);		
     }
 
+// Subclass procedure 
+WNDPROC wpOrigProc = NULL;
+LRESULT APIENTRY SubclassProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
+{ 
+	switch(uMsg) {
+	case WM_MOUSEMOVE:
+		if (browser) {
+			browser->SendMouseMoveEvent(LOWORD(lParam), HIWORD(lParam), false);
+		}
+		break;
+	}
+	return CallWindowProc(wpOrigProc, hwnd, uMsg, 
+		wParam, lParam); 
+} 
+
 int main(int argc, char* argv[])
     {
 	gltSetWorkingDirectory(argv[0]);
@@ -206,6 +221,9 @@ int main(int argc, char* argv[])
     glutInitWindowSize(800,600);
   
     glutCreateWindow("OpenGL SphereWorld");
+
+	HWND hwnd = FindWindow(L"esGLUT", L"OpenGL SphereWorld");
+	wpOrigProc = (WNDPROC)SetWindowLong(hwnd, GWL_WNDPROC, (LONG)SubclassProc);
  
     glutSpecialFunc(SpecialKeys);
     glutReshapeFunc(ChangeSize);
