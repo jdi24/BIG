@@ -202,9 +202,41 @@ WNDPROC wpOrigProc = NULL;
 LRESULT APIENTRY SubclassProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
 { 
 	switch(uMsg) {
+	case WM_LBUTTONDOWN:
+	case WM_RBUTTONDOWN:
+		if(browser && !browser->IsTransparent(LOWORD(lParam), HIWORD(lParam))) {
+			browser->SendMouseClickEvent(LOWORD(lParam), HIWORD(lParam),
+				(uMsg == WM_LBUTTONDOWN ? MBT_LEFT : MBT_RIGHT), false, 1);
+		}
+		break;
+	case WM_LBUTTONUP:
+	case WM_RBUTTONUP:
+		if (browser && !browser->IsTransparent(LOWORD(lParam), HIWORD(lParam))) {
+			browser->SendMouseClickEvent(LOWORD(lParam), HIWORD(lParam),
+				(uMsg == WM_LBUTTONUP ? MBT_LEFT : MBT_RIGHT), true, 1);
+		}
+		break;
 	case WM_MOUSEMOVE:
-		if (browser) {
+		if(browser) {
 			browser->SendMouseMoveEvent(LOWORD(lParam), HIWORD(lParam), false);
+		}
+		break;
+	case WM_MOUSEWHEEL:
+		if(browser) {
+			browser->SendMouseWheelEvent(LOWORD(lParam), HIWORD(lParam),
+				0, GET_WHEEL_DELTA_WPARAM(wParam));
+		}
+		break;
+	case WM_SETFOCUS:
+	case WM_KILLFOCUS:
+		if(browser) {
+			browser->SendFocusEvent(uMsg == WM_SETFOCUS);
+		}
+		break;
+	case WM_CAPTURECHANGED:
+	case WM_CANCELMODE:
+		if (browser) {
+			browser->SendCaptureLostEvent();
 		}
 		break;
 	}
@@ -248,7 +280,7 @@ int main(int argc, char* argv[])
 
 	BigInit();
 
-	browser = new BigBrowser(800, 600, url.c_str());
+	browser = new BigBrowser(800, 600, url.c_str(), hwnd);
 	renderer = new BigRendererGLES20();
 	browser->SetRenderer(renderer);
 

@@ -6,6 +6,7 @@
 class BigRenderer {
 public:
 	virtual ~BigRenderer() {};
+	virtual bool IsTransparent(int x, int y) = 0;
 	virtual void OnPaint(const CefRenderHandler::RectList& dirtyRects, const void* buffer, int width, int height) = 0;
 	virtual void Paint() = 0;
 };
@@ -15,10 +16,13 @@ class ClientHandler : public CefClient
 	, CefRenderHandler
 {
 public:
-	ClientHandler();
+	ClientHandler(CefWindowHandle window_handle);
 	~ClientHandler();
 
 	CefRefPtr<CefBrowser> GetBrowser();
+
+	bool IsTransparent(int x, int y);
+
 	void PaintGLES();
 	void SetRenderer(BigRenderer* renderer);
 	void SetSize(int width, int height);
@@ -34,12 +38,15 @@ public:
 	virtual bool GetViewRect(CefRefPtr<CefBrowser> browser, CefRect& rect) OVERRIDE;
 	virtual void OnPaint(CefRefPtr<CefBrowser> browser, PaintElementType type
 		, const RectList& dirtyRects, const void* buffer, int width, int height) OVERRIDE;
+	virtual void OnCursorChange(CefRefPtr<CefBrowser> browser, CefCursorHandle cursor) OVERRIDE;
 
 protected:
 	IMPLEMENT_REFCOUNTING(ClientHandler);
 	IMPLEMENT_LOCKING(ClientHandler);
 
 private:
+	HWND window_handle_;
+
 	CefRefPtr<CefBrowser> browser_;
 	int browser_id_;
 

@@ -9,7 +9,6 @@
 #define REPEATED_KEYMASK	(1<<30)
 #define EXTENDED_KEYMASK	(1<<24)
 
-static HCURSOR _curArrow;
 static unsigned char _vkMap[0xFF];
 static unsigned char _isDown[0xFF];
 static unsigned long _mouseButton;
@@ -18,7 +17,6 @@ static void _InitOSWinResources() {
     static GLboolean _initialized = GL_FALSE;
     if (_initialized) return;
     _initialized = GL_TRUE;
-    _curArrow = LoadCursor(NULL,IDC_ARROW);
     memset(_isDown,0,sizeof(_isDown));
     memset(_vkMap,0,sizeof(_vkMap));
     _mouseButton = 0;
@@ -95,14 +93,6 @@ static LRESULT WINAPI _glutWindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARA
     case WM_DESTROY: {
         PostQuitMessage(0);
         return TRUE;
-    }
-
-    case WM_SETCURSOR: {
-        if (LOWORD(lParam) == 1) { // mouse over client area ?
-            SetCursor(_curArrow);
-            return TRUE;
-        }
-        break;
     }
 
     case WM_SYSKEYDOWN: // for VK_MENU (Alt)
@@ -274,6 +264,7 @@ GLboolean _glutOSWinCreate(const char* title)
     wndclass.hInstance     = hInstance;
     wndclass.hbrBackground = (HBRUSH)GetStockObject(BLACK_BRUSH);
     wndclass.lpszClassName = TEXT("esGLUT");
+	wndclass.hCursor       = LoadCursor(NULL, IDC_ARROW);
     if (!RegisterClass(&wndclass))
         return FALSE;
 

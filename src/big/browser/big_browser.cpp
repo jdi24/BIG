@@ -20,7 +20,7 @@ void BigShutdown() {
 	CefShutdown();
 }
 
-BigBrowser::BigBrowser(int width, int height, const CefString& url) {
+BigBrowser::BigBrowser(int width, int height, const CefString& url, CefWindowHandle window_handle) {
 	// Browser initialization.
 	CefWindowInfo windowInfo;
 	// SetTransparentPainting(TRUE) makes the page's background has alpha channel.
@@ -36,7 +36,7 @@ BigBrowser::BigBrowser(int width, int height, const CefString& url) {
 
 	CefBrowserSettings browserSettings;
 
-	client_handler_ = new ClientHandler();
+	client_handler_ = new ClientHandler(window_handle);
 	client_handler_->SetSize(width, height);
 	CefBrowserHost::CreateBrowser(windowInfo, client_handler_.get()
 		, url
@@ -59,9 +59,44 @@ void BigBrowser::SetRenderer(BigRenderer* renderer) {
 	}
 }
 
+bool BigBrowser::IsTransparent(int x, int y) {
+	if(client_handler_.get()) {
+		return client_handler_->IsTransparent(x, y);
+	}
+	return true;
+}
+
+void BigBrowser::SendCaptureLostEvent() {
+	if(client_handler_.get() && client_handler_->GetBrowser().get()) {
+		CefRefPtr<CefBrowserHost> host = client_handler_->GetBrowser()->GetHost();
+		host->SendCaptureLostEvent();
+	}
+}
+
+void BigBrowser::SendFocusEvent(bool setFocus) {
+	if(client_handler_.get() && client_handler_->GetBrowser().get()) {
+		CefRefPtr<CefBrowserHost> host = client_handler_->GetBrowser()->GetHost();
+		host->SendFocusEvent(setFocus);
+	}
+}
+
+void BigBrowser::SendMouseClickEvent(int x, int y, CefBrowserHost::MouseButtonType type, bool mouseUp, int clickCount) {
+	if(client_handler_.get() && client_handler_->GetBrowser().get()) {
+		CefRefPtr<CefBrowserHost> host = client_handler_->GetBrowser()->GetHost();
+		host->SendMouseClickEvent(x, y, (CefBrowserHost::MouseButtonType)type, mouseUp, clickCount);
+	}
+}
+
 void BigBrowser::SendMouseMoveEvent(int x, int y, bool mouseLeave) {
 	if(client_handler_.get() && client_handler_->GetBrowser().get()) {
 		CefRefPtr<CefBrowserHost> host = client_handler_->GetBrowser()->GetHost();
 		host->SendMouseMoveEvent(x, y, mouseLeave);
+	}
+}
+
+VOID BigBrowser::SendMouseWheelEvent(int x, int y, int deltaX, int deltaY) {
+	if(client_handler_.get() && client_handler_->GetBrowser().get()) {
+		CefRefPtr<CefBrowserHost> host = client_handler_->GetBrowser()->GetHost();
+		host->SendMouseWheelEvent(x, y, deltaX, deltaY);
 	}
 }

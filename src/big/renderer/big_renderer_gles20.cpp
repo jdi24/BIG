@@ -297,6 +297,14 @@ BigRendererGLES20::~BigRendererGLES20() {
 	FreeBuffer();
 }
 
+bool BigRendererGLES20::IsTransparent(int x, int y) {
+	if(buffer_ready_) {
+		int color = ((int*)buffer_)[y * width_ + x];
+		return (color & 0xFF000000) == 0;
+	}
+	return true;
+}
+
 void BigRendererGLES20::OnPaint(const CefRenderHandler::RectList& dirtyRects, const void* buffer, int width, int height) {
 	buffer_ready_ = false;
 

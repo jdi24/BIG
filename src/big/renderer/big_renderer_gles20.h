@@ -9,6 +9,7 @@ class BigRendererGLES20 : public BigRenderer {
 public:
 	BigRendererGLES20();
 	virtual ~BigRendererGLES20();
+	virtual bool IsTransparent(int x, int y);
 	virtual void OnPaint(const CefRenderHandler::RectList& dirtyRects, const void* buffer, int width, int height);
 	virtual void Paint();
 
