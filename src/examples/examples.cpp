@@ -195,6 +195,9 @@ void SpecialKeys(int key, int x, int y)
 	
 	if(key == GLUT_KEY_RIGHT)
 		cameraFrame.RotateWorld(-angular, 0.0f, 1.0f, 0.0f);		
+
+	if(key == GLUT_KEY_F11 && browser)
+		browser->ShowDevTools();
     }
 
 // Subclass procedure 

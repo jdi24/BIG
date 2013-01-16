@@ -17,6 +17,8 @@ public:
 	void Paint();
 	void SetRenderer(BigRenderer* renderer);
 
+	void OpenDevTools();
+
 	// Message related
 
 	bool IsTransparent(int x, int y);

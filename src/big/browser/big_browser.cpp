@@ -1,5 +1,7 @@
 #include "big_browser.h"
 
+#include <ShellAPI.h>
+
 #include "include/cef_app.h"
 
 void BigInit() {
@@ -8,6 +10,8 @@ void BigInit() {
 	CefSettings settings;
 	// Run cef's message loop on separate thread.
 	settings.multi_threaded_message_loop = true;
+	// Enable dev tools
+	settings.remote_debugging_port = 8088;
 	// Use cefclient.exe to run render process and other sub processes.
 	CefString(&settings.browser_subprocess_path) = "cefclient.exe";
 	// Load locales/zh-CN.pak
@@ -56,6 +60,15 @@ void BigBrowser::Paint() {
 void BigBrowser::SetRenderer(BigRenderer* renderer) {
 	if(client_handler_.get()) {
 		client_handler_->SetRenderer(renderer);
+	}
+}
+
+void BigBrowser::OpenDevTools() {
+	if(client_handler_.get() && client_handler_->GetBrowser().get()) {
+		CefRefPtr<CefBrowserHost> host = client_handler_->GetBrowser()->GetHost();
+		CefString dev_tools_url_http = host->GetDevToolsURL(true);
+		// Open dev tools with system's default browser
+		ShellExecute(NULL, L"open", dev_tools_url_http.c_str(), NULL, NULL, SW_SHOWNORMAL);
 	}
 }
 
