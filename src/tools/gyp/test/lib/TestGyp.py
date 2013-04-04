@@ -14,6 +14,7 @@ import subprocess
 import sys
 import tempfile
 
+import TestCmd
 import TestCommon
 from TestCommon import __all__
 
@@ -383,7 +384,7 @@ class TestGypAndroid(TestGypBase):
   ALL = 'gyp_all_modules'
 
   def __init__(self, gyp=None, *args, **kw):
-    # Android requires build and test output to be outside its source tree.
+    # Android requires build and test output to be inside its source tree.
     # We use the following working directory for the test's source, but the
     # test's build output still goes to $ANDROID_PRODUCT_OUT.
     # Note that some tests explicitly set format='gypd' to invoke the gypd
@@ -961,6 +962,7 @@ class TestGypXcode(TestGypBase):
   up_to_date_endings = (
     'Checking Dependencies...\n** BUILD SUCCEEDED **\n', # Xcode 3.0/3.1
     'Check dependencies\n** BUILD SUCCEEDED **\n\n',     # Xcode 3.2
+    'Check dependencies\n\n\n** BUILD SUCCEEDED **\n\n', # Xcode 4.2
   )
 
   def build(self, gyp_file, target=None, **kw):
@@ -982,6 +984,20 @@ class TestGypXcode(TestGypBase):
     if symroot:
       arguments.append('SYMROOT='+symroot)
     kw['arguments'] = arguments
+
+    # Work around spurious stderr output from Xcode 4, http://crbug.com/181012
+    match = kw.pop('match', self.match)
+    def match_filter_xcode(actual, expected):
+      if actual:
+        if not TestCmd.is_List(actual):
+          actual = actual.split('\n')
+        if not TestCmd.is_List(expected):
+          expected = expected.split('\n')
+        actual = [a for a in actual
+                    if 'No recorder, buildTask: <Xcode3BuildTask:' not in a]
+      return match(actual, expected)
+    kw['match'] = match_filter_xcode
+
     return self.run(program=self.build_tool, **kw)
   def up_to_date(self, gyp_file, target=None, **kw):
     """
