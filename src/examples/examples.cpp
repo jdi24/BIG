@@ -276,9 +276,12 @@ int main(int argc, char* argv[])
 	if(argc >= 2) {
 		url = argv[1];
 	} else {
-		char *pLastSlash = strrchr(argv[0], '\\');   
-		url.assign(argv[0], pLastSlash);
-		url += "\\pages\\wheel_menu\\wheel_menu.html";
+		const char *pLastSlash = strrchr(argv[0], '\\');   
+		std::string strTemp;
+		strTemp.assign(argv[0], pLastSlash);
+		pLastSlash = strrchr(strTemp.c_str(), '\\');
+		url.assign(strTemp.c_str(), pLastSlash);
+		url += "\\res\\pages\\wheel_menu\\wheel_menu.html";
 	}
 
 	BigInit();

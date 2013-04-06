@@ -68,16 +68,11 @@
             '<(DEPTH)/big/renderer/big_renderer_gles20.h',
             '<(DEPTH)/big/renderer/big_renderer_gles20.cpp',
           ],
-          'copies': [
-            {
-              'destination': '<(PRODUCT_DIR)/pages/wheel_menu',
-               'files': [
-                 'pages/wheel_menu/wheel_menu.html',
-                 'pages/wheel_menu/card18.jpg',
-                 'pages/wheel_menu/jquery-latest.js',
-               ],
-            },
-          ],
+          'msvs_settings': {
+            'VCLinkerTool': {
+              'AdditionalDependencies': ['shell32.lib', 'user32.lib'],
+            }
+          },          
         },
       ],
     }],

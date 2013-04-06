@@ -306,6 +306,7 @@
                 'd3d9.lib',
                 'dxguid.lib',
                 'dwmapi.lib',
+                'user32.lib',
               ],
               'DelayLoadDLLs': [
                 'dwmapi.dll',

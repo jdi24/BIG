@@ -26,6 +26,11 @@
             'include_dirs': [
               'include/',
             ],
+            'msvs_settings': {
+              'VCLinkerTool': {
+                'AdditionalDependencies': ['gdi32.lib', 'user32.lib'],
+              }
+            },            
           },
         },
       ],

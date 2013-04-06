@@ -40,7 +40,7 @@
       'Common': {
         'abstract': 1,
         'msvs_configuration_attributes': {
-          'OutputDirectory': '$(SolutionDir)$(ConfigurationName)',
+          'OutputDirectory': '$(SolutionDir)\\output\\$(ConfigurationName)',
           'IntermediateDirectory': '$(OutDir)\\obj\\$(ProjectName)',
           'CharacterSet': '1',  # UNICODE
         },
